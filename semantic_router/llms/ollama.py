@@ -12,6 +12,7 @@ class OllamaLLM(BaseLLM):
     llm_name: Optional[str]
     max_tokens: Optional[int]
     stream: Optional[bool]
+    base_url: Optional[str]
 
     def __init__(
         self,
@@ -20,12 +21,14 @@ class OllamaLLM(BaseLLM):
         llm_name: str = "openhermes",
         max_tokens: Optional[int] = 200,
         stream: bool = False,
+        base_url: str = "http://localhost:11434",
     ):
         super().__init__(name=name)
         self.temperature = temperature
         self.llm_name = llm_name
         self.max_tokens = max_tokens
         self.stream = stream
+        self.base_url = base_url
 
     def __call__(
         self,
@@ -34,12 +37,14 @@ class OllamaLLM(BaseLLM):
         llm_name: Optional[str] = None,
         max_tokens: Optional[int] = None,
         stream: Optional[bool] = None,
+        base_url: Optional[str] = None,
     ) -> str:
         # Use instance defaults if not overridden
         temperature = temperature if temperature is not None else self.temperature
         llm_name = llm_name if llm_name is not None else self.llm_name
         max_tokens = max_tokens if max_tokens is not None else self.max_tokens
         stream = stream if stream is not None else self.stream
+        base_url = base_url if base_url is not None else self.base_url
 
         try:
             payload = {
@@ -49,7 +54,7 @@ class OllamaLLM(BaseLLM):
                 "format": "json",
                 "stream": stream,
             }
-            response = requests.post("http://localhost:11434/api/chat", json=payload)
+            response = requests.post(f"{base_url}/api/chat", json=payload)
             output = response.json()["message"]["content"]
 
             return output
